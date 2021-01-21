@@ -5,6 +5,7 @@ import { dirname, join, isAbsolute } from 'path'
 import * as mkdirp from 'mkdirp'
 import { SourceMapConsumer } from 'source-map'
 import * as minimist from 'minimist'
+import { resolve } from 'path'
 
 const argv = minimist(process.argv.slice(2))
 const projectNameInput = argv._[0]
@@ -42,9 +43,8 @@ try {
         console.log(chalk.green(`Unpacking 🛍  your source maps 🗺`))
         const sources = (consumer as any).sources
         sources.forEach((source: string) => {
-            const WEBPACK_SUBSTRING_INDEX = 11
             const content = consumer.sourceContentFor(source)
-            const filePath = `${process.cwd()}/${projectNameInput}/${source.substring(WEBPACK_SUBSTRING_INDEX)}`
+            const filePath = resolve(`${process.cwd()}/${projectNameInput}/${source.replace(/^(\.\.\/)+/, "")}`)
             mkdirp.sync(dirname(filePath))
             fs.writeFileSync(filePath, content)
         })
